@@ -7,6 +7,10 @@ import notFound from './middlewares/notFound';
 
 const app: Application = express();
 
+// Webhook parsers - must be before express.json()
+app.use('/api/payments/success', express.raw({ type: 'application/json' }));
+app.use('/api/payments/fail', express.raw({ type: 'application/json' }));
+
 // Parsers
 app.use(express.json());
 app.use(cookieParser());
