@@ -1,0 +1,181 @@
+import { prisma } from '../../lib/prisma';
+import { ICreateGear, IUpdateGear, IGearFilters } from './gear.interface';
+import httpStatus from 'http-status';
+
+const createGear = async (userId: string, payload: ICreateGear) => {
+  const provider = await prisma.provider.findUnique({
+    where: { userId },
+  });
+
+  if (!provider) {
+    const error: any = new Error('Provider profile not found. Please create a provider profile first.');
+    error.statusCode = httpStatus.NOT_FOUND;
+    throw error;
+  }
+  
+  if (!provider.approved) {
+    const error: any = new Error('Your provider profile is not yet approved by an admin.');
+    error.statusCode = httpStatus.FORBIDDEN;
+    throw error;
+  }
+
+  const gear = await prisma.gear.create({
+    data: {
+      ...payload,
+      providerId: provider.id,
+    },
+  });
+
+  return gear;
+};
+
+const getAllGears = async (filters: IGearFilters) => {
+  const { searchTerm, categoryId, status, minPrice, maxPrice } = filters;
+
+  const andConditions: any[] = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: [
+        { name: { contains: searchTerm, mode: 'insensitive' } },
+        { description: { contains: searchTerm, mode: 'insensitive' } },
+      ],
+    });
+  }
+
+  if (categoryId) {
+    andConditions.push({ categoryId });
+  }
+
+  if (status) {
+    andConditions.push({ status });
+  }
+
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    const priceCondition: any = {};
+    if (minPrice !== undefined) priceCondition.gte = Number(minPrice);
+    if (maxPrice !== undefined) priceCondition.lte = Number(maxPrice);
+    andConditions.push({ dailyRentalPrice: priceCondition });
+  }
+
+  const whereConditions = andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const gears = await prisma.gear.findMany({
+    where: whereConditions,
+    include: {
+      category: true,
+      provider: {
+        select: {
+          id: true,
+          businessName: true,
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return gears;
+};
+
+const getGearById = async (id: string) => {
+  const gear = await prisma.gear.findUnique({
+    where: { id },
+    include: {
+      category: true,
+      provider: {
+        select: {
+          id: true,
+          businessName: true,
+          address: true,
+          user: {
+            select: {
+              name: true,
+              email: true,
+              phone: true,
+            }
+          }
+        },
+      },
+      reviews: {
+        include: {
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!gear) {
+    const error: any = new Error('Gear not found');
+    error.statusCode = httpStatus.NOT_FOUND;
+    throw error;
+  }
+
+  return gear;
+};
+
+const updateGear = async (id: string, userId: string, userRole: string, payload: IUpdateGear) => {
+  const gear = await prisma.gear.findUnique({
+    where: { id },
+    include: {
+      provider: true,
+    },
+  });
+
+  if (!gear) {
+    const error: any = new Error('Gear not found');
+    error.statusCode = httpStatus.NOT_FOUND;
+    throw error;
+  }
+
+  if (userRole === 'PROVIDER' && gear.provider.userId !== userId) {
+    const error: any = new Error('You are not authorized to update this gear listing');
+    error.statusCode = httpStatus.FORBIDDEN;
+    throw error;
+  }
+
+  const updatedGear = await prisma.gear.update({
+    where: { id },
+    data: payload,
+  });
+
+  return updatedGear;
+};
+
+const deleteGear = async (id: string, userId: string, userRole: string) => {
+  const gear = await prisma.gear.findUnique({
+    where: { id },
+    include: {
+      provider: true,
+    },
+  });
+
+  if (!gear) {
+    const error: any = new Error('Gear not found');
+    error.statusCode = httpStatus.NOT_FOUND;
+    throw error;
+  }
+
+  if (userRole === 'PROVIDER' && gear.provider.userId !== userId) {
+    const error: any = new Error('You are not authorized to delete this gear listing');
+    error.statusCode = httpStatus.FORBIDDEN;
+    throw error;
+  }
+
+  await prisma.gear.delete({
+    where: { id },
+  });
+
+  return null;
+};
+
+export const GearService = {
+  createGear,
+  getAllGears,
+  getGearById,
+  updateGear,
+  deleteGear,
+};
