@@ -1,5 +1,5 @@
-import { prisma } from '../../lib/prisma';
-import httpStatus from 'http-status';
+import { prisma } from "../../lib/prisma";
+import httpStatus from "http-status";
 
 const getAllUsers = async () => {
   const users = await prisma.user.findMany({
@@ -12,25 +12,32 @@ const getAllUsers = async () => {
       isDeleted: true,
       createdAt: true,
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: "desc" },
   });
   return users;
 };
 
-const blockUser = async (id: string) => {
+const toggleUserBlock = async (id: string) => {
   const user = await prisma.user.findUnique({
     where: { id },
   });
 
   if (!user) {
-    const error: any = new Error('User not found');
+    const error: any = new Error("User not found");
     error.statusCode = httpStatus.NOT_FOUND;
     throw error;
   }
 
   const updatedUser = await prisma.user.update({
     where: { id },
-    data: { isDeleted: true }, // soft delete/block
+    data: { isDeleted: !user.isDeleted }, // Toggle: block if active, unblock if blocked
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      isDeleted: true,
+    },
   });
 
   return updatedUser;
@@ -48,7 +55,7 @@ const getProviderRequests = async () => {
         },
       },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: "desc" },
   });
 
   return providers;
@@ -60,7 +67,7 @@ const approveProvider = async (id: string) => {
   });
 
   if (!provider) {
-    const error: any = new Error('Provider not found');
+    const error: any = new Error("Provider not found");
     error.statusCode = httpStatus.NOT_FOUND;
     throw error;
   }
@@ -71,6 +78,20 @@ const approveProvider = async (id: string) => {
   });
 
   return updatedProvider;
+};
+
+const getAllGears = async () => {
+  const gears = await prisma.gear.findMany({
+    include: {
+      category: { select: { name: true } },
+      provider: { select: { businessName: true } },
+      _count: {
+        select: { rentals: true, reviews: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  return gears;
 };
 
 const getAllRentals = async () => {
@@ -93,7 +114,7 @@ const getAllRentals = async () => {
         },
       },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: "desc" },
   });
   return rentals;
 };
@@ -117,16 +138,17 @@ const getAllPayments = async () => {
         },
       },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: "desc" },
   });
   return payments;
 };
 
 export const AdminService = {
   getAllUsers,
-  blockUser,
+  toggleUserBlock,
   getProviderRequests,
   approveProvider,
+  getAllGears,
   getAllRentals,
   getAllPayments,
 };
