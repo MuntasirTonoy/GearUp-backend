@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import config from './config';
 import globalErrorHandler from './middlewares/globalErrorHandler';
 import notFound from './middlewares/notFound';
+import router from './routes';
 
 const app: Application = express();
 
@@ -24,7 +25,7 @@ app.use(
 );
 
 // Application Routes
-// TODO: Mount API routes here later under /api (e.g., app.use('/api', router))
+app.use('/api', router);
 
 // Health check route
 app.get('/', (req: Request, res: Response) => {
@@ -34,10 +35,10 @@ app.get('/', (req: Request, res: Response) => {
   });
 });
 
-// Not Found Route
+// Not Found Route (Keep at end)
 app.use(notFound);
 
-// Global Error Handler
+// Global Error Handler (Keep at end)
 app.use(globalErrorHandler);
 
 export default app;
