@@ -1,0 +1,18 @@
+model Gear {
+  id               String   @id @default(uuid())
+  name             String
+  description      String
+  image            String
+  dailyRentalPrice Float
+  quantity         Int
+  status           String   @default("AVAILABLE")
+  providerId       String
+  provider         Provider @relation(fields: [providerId], references: [id])
+  categoryId       String
+  category         Category @relation(fields: [categoryId], references: [id])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  rentals          Rental[]
+  reviews          Review[]
+}
