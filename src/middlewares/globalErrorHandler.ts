@@ -1,6 +1,7 @@
 import { ErrorRequestHandler } from 'express';
 import { Prisma } from '@prisma/client';
 import httpStatus from 'http-status';
+import config from '../config';
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
@@ -26,7 +27,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     success: false,
     message,
     error: err,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+    stack: config.env === 'development' ? err.stack : undefined,
   });
 };
 
