@@ -2,6 +2,7 @@ import { prisma } from '../../lib/prisma';
 import { IUpdateUser } from './user.interface';
 import { ImageUploadService } from '../imageUpload/imageUpload.service';
 import httpStatus from 'http-status';
+import bcrypt from 'bcryptjs';
 
 const getMyProfile = async (userId: string) => {
   const user = await prisma.user.findUnique({
@@ -84,8 +85,42 @@ const getPublicProfile = async (userId: string) => {
   return user;
 };
 
+const deleteMyProfile = async (userId: string, password?: string) => {
+  if (!password) {
+    const error: any = new Error('Password is required to delete account');
+    error.statusCode = httpStatus.BAD_REQUEST;
+    throw error;
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId, isDeleted: false },
+  });
+
+  if (!user) {
+    const error: any = new Error('User not found');
+    error.statusCode = httpStatus.NOT_FOUND;
+    throw error;
+  }
+
+  const isPasswordMatched = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordMatched) {
+    const error: any = new Error('Incorrect password');
+    error.statusCode = httpStatus.UNAUTHORIZED;
+    throw error;
+  }
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { isDeleted: true },
+  });
+
+  return null;
+};
+
 export const UserService = {
   getMyProfile,
   updateMyProfile,
   getPublicProfile,
+  deleteMyProfile,
 };

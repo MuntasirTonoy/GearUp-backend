@@ -58,8 +58,23 @@ const getPublicProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const deleteMyProfile = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const { password } = req.body;
+
+  await UserService.deleteMyProfile(userId, password);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Profile deleted successfully',
+    data: null,
+  });
+});
+
 export const UserController = {
   getMyProfile,
   updateMyProfile,
   getPublicProfile,
+  deleteMyProfile,
 };
