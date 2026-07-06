@@ -13,4 +13,8 @@ model User {
   provider  Provider?
   rentals   Rental[]
   reviews   Review[]
+
+  @@map("users")
+  @@index([email])
+  @@index([role])
 }

@@ -18,19 +18,43 @@ const registerUser = async (payload: IRegisterUser): Promise<IAuthResponse> => {
     throw error;
   }
 
-  if (payload.role === Role.ADMIN) {
+  const { businessName, description, address, ...userFields } = payload;
+  const normalizedRole = userFields.role ? (userFields.role.toUpperCase() as Role) : Role.CUSTOMER;
+
+  if (normalizedRole === Role.ADMIN) {
      const error: any = new Error('Cannot register as ADMIN directly');
      error.statusCode = httpStatus.FORBIDDEN;
      throw error;
   }
 
-  const hashedPassword = await bcrypt.hash(payload.password, config.bcryptSaltRounds);
+  const hashedPassword = await bcrypt.hash(userFields.password, config.bcryptSaltRounds);
 
-  const newUser = await prisma.user.create({
-    data: {
-      ...payload,
-      password: hashedPassword,
-    },
+  const newUser = await prisma.$transaction(async (tx) => {
+    const user = await tx.user.create({
+      data: {
+        ...userFields,
+        role: normalizedRole,
+        password: hashedPassword,
+      },
+    });
+
+    if (user.role === Role.PROVIDER) {
+      if (!businessName || !description || !address) {
+        const error: any = new Error('businessName, description, and address are required for PROVIDER role');
+        error.statusCode = httpStatus.BAD_REQUEST;
+        throw error;
+      }
+      await tx.provider.create({
+        data: {
+          userId: user.id,
+          businessName,
+          description,
+          address,
+        },
+      });
+    }
+    
+    return user;
   });
 
   const jwtPayload = {

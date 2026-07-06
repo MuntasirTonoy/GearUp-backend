@@ -6,4 +6,6 @@ model Category {
   updatedAt   DateTime @updatedAt
 
   gears       Gear[]
+
+  @@map("categories")
 }

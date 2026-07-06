@@ -7,12 +7,17 @@ model Gear {
   quantity         Int
   status           String   @default("AVAILABLE")
   providerId       String
-  provider         Provider @relation(fields: [providerId], references: [id])
+  provider         Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
   categoryId       String
-  category         Category @relation(fields: [categoryId], references: [id])
+  category         Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   rentals          Rental[]
   reviews          Review[]
+
+  @@map("gears")
+  @@index([categoryId])
+  @@index([providerId])
+  @@index([status])
 }

@@ -1,11 +1,15 @@
 model Review {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   gearId    String
-  gear      Gear     @relation(fields: [gearId], references: [id])
+  gear      Gear     @relation(fields: [gearId], references: [id], onDelete: Cascade)
   rating    Int
   comment   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("reviews")
+  @@index([gearId])
+  @@index([userId])
 }

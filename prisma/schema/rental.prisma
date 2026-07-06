@@ -1,9 +1,9 @@
 model Rental {
   id          String   @id @default(uuid())
   customerId  String
-  customer    User     @relation(fields: [customerId], references: [id])
+  customer    User     @relation(fields: [customerId], references: [id], onDelete: Cascade)
   gearId      String
-  gear        Gear     @relation(fields: [gearId], references: [id])
+  gear        Gear     @relation(fields: [gearId], references: [id], onDelete: Cascade)
   startDate   DateTime
   endDate     DateTime
   totalDays   Int
@@ -13,4 +13,9 @@ model Rental {
   updatedAt   DateTime @updatedAt
 
   payment     Payment?
+
+  @@map("rentals")
+  @@index([customerId])
+  @@index([gearId])
+  @@index([status])
 }
