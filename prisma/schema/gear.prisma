@@ -2,7 +2,7 @@ model Gear {
   id               String   @id @default(uuid())
   name             String
   description      String
-  image            String
+  images           String[]
   dailyRentalPrice Float
   quantity         Int
   status           String   @default("AVAILABLE")

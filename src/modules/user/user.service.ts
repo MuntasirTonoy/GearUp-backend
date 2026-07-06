@@ -1,5 +1,6 @@
 import { prisma } from '../../lib/prisma';
 import { IUpdateUser } from './user.interface';
+import { ImageUploadService } from '../imageUpload/imageUpload.service';
 import httpStatus from 'http-status';
 
 const getMyProfile = async (userId: string) => {
@@ -10,6 +11,7 @@ const getMyProfile = async (userId: string) => {
       name: true,
       email: true,
       phone: true,
+      profilePhoto: true,
       role: true,
       createdAt: true,
       updatedAt: true,
@@ -36,6 +38,13 @@ const updateMyProfile = async (userId: string, payload: IUpdateUser) => {
     throw error;
   }
 
+  // If a new profile photo is being set, clean up the old one from Cloudinary
+  if (payload.profilePhoto && user.profilePhoto) {
+    ImageUploadService.deleteImage(user.profilePhoto).catch((err) => {
+      console.error('Failed to cleanup old profile photo:', err);
+    });
+  }
+
   const updatedUser = await prisma.user.update({
     where: { id: userId },
     data: payload,
@@ -44,6 +53,7 @@ const updateMyProfile = async (userId: string, payload: IUpdateUser) => {
       name: true,
       email: true,
       phone: true,
+      profilePhoto: true,
       role: true,
       createdAt: true,
       updatedAt: true,
@@ -59,6 +69,7 @@ const getPublicProfile = async (userId: string) => {
     select: {
       id: true,
       name: true,
+      profilePhoto: true,
       role: true,
       createdAt: true,
     },

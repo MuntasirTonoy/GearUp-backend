@@ -55,7 +55,7 @@ const getMyPayments = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getPaymentDetails = catchAsync(async (req: Request, res: Response) => {
-  const { rentalId } = req.params;
+  const { rentalId } = req.params as { rentalId: string };
   const userId = req.user?.id;
   const userRole = req.user?.role;
 

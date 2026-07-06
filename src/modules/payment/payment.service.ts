@@ -159,7 +159,7 @@ const getMyPayments = async (customerId: string) => {
           gear: {
             select: {
               name: true,
-              image: true,
+              images: true,
             },
           },
         },

@@ -15,7 +15,7 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 });
 
 const toggleUserBlock = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const result = await AdminService.toggleUserBlock(id);
   const action = result.isDeleted ? "blocked" : "unblocked";
   sendResponse(res, {
@@ -37,7 +37,7 @@ const getProviderRequests = catchAsync(async (req: Request, res: Response) => {
 });
 
 const approveProvider = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const result = await AdminService.approveProvider(id);
   sendResponse(res, {
     statusCode: httpStatus.OK,

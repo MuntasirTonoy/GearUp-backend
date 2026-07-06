@@ -20,6 +20,11 @@ interface Config {
     stripeSecretKey: string;
     stripeWebhookSecret: string;
   };
+  cloudinary: {
+    cloudName: string;
+    apiKey: string;
+    apiSecret: string;
+  };
 }
 
 const config: Config = {
@@ -38,7 +43,12 @@ const config: Config = {
     provider: process.env.PAYMENT_PROVIDER || 'stripe',
     stripeSecretKey: process.env.STRIPE_SECRET_KEY as string,
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET as string,
-  }
+  },
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME as string,
+    apiKey: process.env.CLOUDINARY_API_KEY as string,
+    apiSecret: process.env.CLOUDINARY_API_SECRET as string,
+  },
 };
 
 export default config;

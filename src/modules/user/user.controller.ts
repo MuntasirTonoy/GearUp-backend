@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { UserService } from './user.service';
+import { ImageUploadService } from '../imageUpload/imageUpload.service';
 import httpStatus from 'http-status';
 
 const getMyProfile = catchAsync(async (req: Request, res: Response) => {
@@ -19,7 +20,20 @@ const getMyProfile = catchAsync(async (req: Request, res: Response) => {
 
 const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
-  const payload = req.body;
+  const payload: Record<string, any> = {};
+
+  // Parse text fields from form-data
+  if (req.body.name) payload.name = req.body.name;
+  if (req.body.phone) payload.phone = req.body.phone;
+
+  // Upload profile photo if provided
+  if (req.file) {
+    const uploaded = await ImageUploadService.uploadSingleImage(
+      req.file,
+      'gearup/avatars'
+    );
+    payload.profilePhoto = uploaded.url;
+  }
 
   const result = await UserService.updateMyProfile(userId, payload);
 
@@ -32,7 +46,7 @@ const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getPublicProfile = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
 
   const result = await UserService.getPublicProfile(id);
 

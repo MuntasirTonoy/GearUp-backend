@@ -18,7 +18,7 @@ const createReview = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getReviewsByGearId = catchAsync(async (req: Request, res: Response) => {
-  const { gearId } = req.params;
+  const { gearId } = req.params as { gearId: string };
   
   const result = await ReviewService.getReviewsByGearId(gearId);
 
@@ -31,7 +31,7 @@ const getReviewsByGearId = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteReview = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const userId = req.user?.id;
   const userRole = req.user?.role;
   

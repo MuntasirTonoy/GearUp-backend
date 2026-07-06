@@ -1,7 +1,7 @@
 export interface ICreateGear {
   name: string;
   description: string;
-  image: string;
+  images: string[];
   dailyRentalPrice: number;
   quantity: number;
   categoryId: string;
@@ -10,7 +10,7 @@ export interface ICreateGear {
 export interface IUpdateGear {
   name?: string;
   description?: string;
-  image?: string;
+  images?: string[];
   dailyRentalPrice?: number;
   quantity?: number;
   status?: string;

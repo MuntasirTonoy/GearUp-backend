@@ -45,7 +45,7 @@ const createRental = async (customerId: string, payload: ICreateRental) => {
     },
     include: {
       gear: {
-        select: { name: true, image: true, dailyRentalPrice: true },
+        select: { name: true, images: true, dailyRentalPrice: true },
       },
     },
   });
@@ -60,7 +60,7 @@ const getMyRentals = async (customerId: string) => {
       gear: {
         select: {
           name: true,
-          image: true,
+          images: true,
           dailyRentalPrice: true,
         },
       },
@@ -143,7 +143,7 @@ const getProviderRentals = async (providerUserId: string) => {
       gear: {
         select: {
           name: true,
-          image: true,
+          images: true,
         },
       },
       payment: true,

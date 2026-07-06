@@ -28,7 +28,7 @@ const getApprovedProviders = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getProviderById = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const result = await ProviderService.getProviderById(id);
 
   sendResponse(res, {
@@ -40,7 +40,7 @@ const getProviderById = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateProvider = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const userId = req.user?.id;
   const userRole = req.user?.role;
   

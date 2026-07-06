@@ -29,7 +29,7 @@ const getMyRentals = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getRentalById = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const userId = req.user?.id;
   const userRole = req.user?.role;
 
@@ -56,7 +56,7 @@ const getProviderRentals = catchAsync(async (req: Request, res: Response) => {
 });
 
 const cancelRental = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const customerId = req.user?.id;
 
   const result = await RentalService.cancelRental(id, customerId);
@@ -70,7 +70,7 @@ const cancelRental = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateRentalStatus = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const userId = req.user?.id;
   const userRole = req.user?.role;
 

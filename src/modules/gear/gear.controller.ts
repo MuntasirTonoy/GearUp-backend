@@ -2,12 +2,34 @@ import { Request, Response } from 'express';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { GearService } from './gear.service';
+import { ImageUploadService } from '../imageUpload/imageUpload.service';
 import httpStatus from 'http-status';
 import { IGearFilters } from './gear.interface';
 
 const createGear = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
-  const result = await GearService.createGear(userId, req.body);
+
+  // Parse JSON body fields from multipart form-data
+  const payload = {
+    name: req.body.name,
+    description: req.body.description,
+    dailyRentalPrice: Number(req.body.dailyRentalPrice),
+    quantity: Number(req.body.quantity),
+    categoryId: req.body.categoryId,
+    images: [] as string[],
+  };
+
+  // Upload images to Cloudinary
+  const files = req.files as Express.Multer.File[] | undefined;
+  if (files && files.length > 0) {
+    const uploaded = await ImageUploadService.uploadMultipleImages(
+      files,
+      'gearup/gears'
+    );
+    payload.images = uploaded.map((img) => img.url);
+  }
+
+  const result = await GearService.createGear(userId, payload);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -37,7 +59,7 @@ const getAllGears = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getGearById = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const result = await GearService.getGearById(id);
 
   sendResponse(res, {
@@ -49,11 +71,30 @@ const getGearById = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateGear = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const userId = req.user?.id;
   const userRole = req.user?.role;
-  
-  const result = await GearService.updateGear(id, userId, userRole, req.body);
+
+  // Build payload from form-data
+  const payload: Record<string, any> = {};
+  if (req.body.name) payload.name = req.body.name;
+  if (req.body.description) payload.description = req.body.description;
+  if (req.body.dailyRentalPrice) payload.dailyRentalPrice = Number(req.body.dailyRentalPrice);
+  if (req.body.quantity) payload.quantity = Number(req.body.quantity);
+  if (req.body.status) payload.status = req.body.status;
+  if (req.body.categoryId) payload.categoryId = req.body.categoryId;
+
+  // Upload new images if provided
+  const files = req.files as Express.Multer.File[] | undefined;
+  if (files && files.length > 0) {
+    const uploaded = await ImageUploadService.uploadMultipleImages(
+      files,
+      'gearup/gears'
+    );
+    payload.images = uploaded.map((img) => img.url);
+  }
+
+  const result = await GearService.updateGear(id, userId, userRole, payload);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -64,7 +105,7 @@ const updateGear = catchAsync(async (req: Request, res: Response) => {
 });
 
 const deleteGear = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as { id: string };
   const userId = req.user?.id;
   const userRole = req.user?.role;
   

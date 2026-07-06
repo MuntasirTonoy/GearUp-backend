@@ -1,5 +1,6 @@
 import { prisma } from '../../lib/prisma';
 import { ICreateGear, IUpdateGear, IGearFilters } from './gear.interface';
+import { ImageUploadService } from '../imageUpload/imageUpload.service';
 import httpStatus from 'http-status';
 
 const createGear = async (userId: string, payload: ICreateGear) => {
@@ -137,6 +138,14 @@ const updateGear = async (id: string, userId: string, userRole: string, payload:
     throw error;
   }
 
+  // If new images are provided, clean up old Cloudinary images
+  if (payload.images && payload.images.length > 0 && gear.images.length > 0) {
+    // Fire-and-forget cleanup — don't block the update
+    ImageUploadService.deleteMultipleImages(gear.images).catch((err) => {
+      console.error('Failed to cleanup old gear images:', err);
+    });
+  }
+
   const updatedGear = await prisma.gear.update({
     where: { id },
     data: payload,
@@ -163,6 +172,13 @@ const deleteGear = async (id: string, userId: string, userRole: string) => {
     const error: any = new Error('You are not authorized to delete this gear listing');
     error.statusCode = httpStatus.FORBIDDEN;
     throw error;
+  }
+
+  // Clean up Cloudinary images before deleting the gear
+  if (gear.images.length > 0) {
+    ImageUploadService.deleteMultipleImages(gear.images).catch((err) => {
+      console.error('Failed to cleanup gear images on delete:', err);
+    });
   }
 
   await prisma.gear.delete({
