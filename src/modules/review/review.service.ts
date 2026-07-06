@@ -8,13 +8,13 @@ const createReview = async (userId: string, payload: ICreateReview) => {
       customerId: userId,
       gearId: payload.gearId,
       status: {
-        in: ['PAID', 'COMPLETED'],
+        in: ['RETURNED'],
       },
     },
   });
 
   if (!completedRental) {
-    const error: any = new Error('You can only review gear you have successfully rented and completed/paid for.');
+    const error: any = new Error('You can only review gear you have successfully rented and returned.');
     error.statusCode = httpStatus.FORBIDDEN;
     throw error;
   }

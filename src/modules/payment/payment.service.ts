@@ -26,9 +26,9 @@ const initiatePayment = async (customerId: string, rentalId: string) => {
     throw error;
   }
 
-  if (rental.status !== "CONFIRMED") {
+  if (rental.status !== "PLACED") {
     const error: any = new Error(
-      `Rental must be CONFIRMED by the provider before payment. Current status: ${rental.status}`,
+      `Rental must be PLACED before payment. Current status: ${rental.status}`,
     );
     error.statusCode = httpStatus.BAD_REQUEST;
     throw error;
@@ -116,11 +116,6 @@ const handleStripeWebhook = async (
       await prisma.payment.update({
         where: { rentalId },
         data: { paymentStatus: "PAID" },
-      });
-      // Move rental to PAID — provider can then mark PICKED_UP
-      await prisma.rental.update({
-        where: { id: rentalId },
-        data: { status: "PAID" },
       });
     }
   } else if (

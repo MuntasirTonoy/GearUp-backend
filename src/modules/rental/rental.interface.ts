@@ -1,3 +1,5 @@
+import { RentalStatus } from '../../../generated/prisma/client';
+
 export interface ICreateRental {
   gearId: string;
   startDate: string;
@@ -5,13 +7,11 @@ export interface ICreateRental {
 }
 
 export interface IUpdateRentalStatus {
-  status: 'CONFIRMED' | 'CANCELLED' | 'PICKED_UP' | 'RETURNED';
+  status: RentalStatus;
 }
 
 // Valid rental status flow
-// PLACED → CONFIRMED (provider) or CANCELLED (customer/provider)
-// CONFIRMED → PAID (payment)
-// PAID → PICKED_UP (provider)
+// PLACED → CANCELLED (customer/provider) or PICKED_UP (provider)
 // PICKED_UP → RETURNED (provider)
 
-export type RentalStatus = 'PLACED' | 'CONFIRMED' | 'CANCELLED' | 'PAID' | 'PICKED_UP' | 'RETURNED';
+

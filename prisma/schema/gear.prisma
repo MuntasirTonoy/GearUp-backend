@@ -13,11 +13,11 @@ model Gear {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  rentals          Rental[]
-  reviews          Review[]
+  rentals Rental[]
+  reviews Review[]
 
-  @@map("gears")
   @@index([categoryId])
   @@index([providerId])
   @@index([status])
+  @@map("gears")
 }

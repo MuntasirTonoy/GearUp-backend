@@ -3,3 +3,10 @@ enum Role {
   PROVIDER
   ADMIN
 }
+
+enum RentalStatus {
+  PLACED
+  CANCELLED
+  PICKED_UP
+  RETURNED
+}

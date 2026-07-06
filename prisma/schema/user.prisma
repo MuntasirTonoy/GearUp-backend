@@ -8,13 +8,13 @@ model User {
   role         Role     @default(CUSTOMER)
   isDeleted    Boolean  @default(false)
   createdAt    DateTime @default(now())
-  updatedAt    DateTime  @updatedAt
+  updatedAt    DateTime @updatedAt
 
-  provider  Provider?
-  rentals   Rental[]
-  reviews   Review[]
+  provider Provider?
+  rentals  Rental[]
+  reviews  Review[]
 
-  @@map("users")
   @@index([email])
   @@index([role])
+  @@map("users")
 }
