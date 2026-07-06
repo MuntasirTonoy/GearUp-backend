@@ -78,6 +78,34 @@ const getAllGears = async (filters: IGearFilters) => {
   return gears;
 };
 
+const getMyGears = async (userId: string) => {
+  const provider = await prisma.provider.findUnique({
+    where: { userId },
+  });
+
+  if (!provider) {
+    const error: any = new Error('Provider profile not found');
+    error.statusCode = httpStatus.NOT_FOUND;
+    throw error;
+  }
+
+  const gears = await prisma.gear.findMany({
+    where: { providerId: provider.id },
+    include: {
+      category: true,
+      provider: {
+        select: {
+          id: true,
+          businessName: true,
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  return gears;
+};
+
 const getGearById = async (id: string) => {
   const gear = await prisma.gear.findUnique({
     where: { id },
@@ -191,6 +219,7 @@ const deleteGear = async (id: string, userId: string, userRole: string) => {
 export const GearService = {
   createGear,
   getAllGears,
+  getMyGears,
   getGearById,
   updateGear,
   deleteGear,

@@ -58,6 +58,22 @@ const getAllGears = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMyGears = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    throw new Error('User not found');
+  }
+
+  const result = await GearService.getMyGears(userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'My gears retrieved successfully',
+    data: result,
+  });
+});
+
 const getGearById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   const result = await GearService.getGearById(id);
@@ -122,6 +138,7 @@ const deleteGear = catchAsync(async (req: Request, res: Response) => {
 export const GearController = {
   createGear,
   getAllGears,
+  getMyGears,
   getGearById,
   updateGear,
   deleteGear,

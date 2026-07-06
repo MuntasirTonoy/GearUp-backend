@@ -17,6 +17,17 @@ const createReview = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getFeaturedReviews = catchAsync(async (req: Request, res: Response) => {
+  const result = await ReviewService.getFeaturedReviews();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Featured reviews retrieved successfully',
+    data: result,
+  });
+});
+
 const getReviewsByGearId = catchAsync(async (req: Request, res: Response) => {
   const { gearId } = req.params as { gearId: string };
   
@@ -47,6 +58,7 @@ const deleteReview = catchAsync(async (req: Request, res: Response) => {
 
 export const ReviewController = {
   createReview,
+  getFeaturedReviews,
   getReviewsByGearId,
   deleteReview,
 };

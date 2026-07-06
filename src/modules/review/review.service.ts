@@ -65,6 +65,29 @@ const getReviewsByGearId = async (gearId: string) => {
   return reviews;
 };
 
+const getFeaturedReviews = async () => {
+  const reviews = await prisma.review.findMany({
+    where: { rating: { gte: 4 } },
+    include: {
+      user: {
+        select: {
+          name: true,
+          profilePhoto: true,
+        },
+      },
+      gear: {
+        select: {
+          name: true,
+        },
+      }
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 6,
+  });
+
+  return reviews;
+};
+
 const deleteReview = async (id: string, userId: string, userRole: string) => {
   const review = await prisma.review.findUnique({
     where: { id },
@@ -92,5 +115,6 @@ const deleteReview = async (id: string, userId: string, userRole: string) => {
 export const ReviewService = {
   createReview,
   getReviewsByGearId,
+  getFeaturedReviews,
   deleteReview,
 };

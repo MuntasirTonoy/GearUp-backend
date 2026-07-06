@@ -8,6 +8,7 @@ const router = Router();
 
 router.post('/', auth(Role.PROVIDER), uploadMultiple('images', 5), GearController.createGear);
 router.get('/', GearController.getAllGears);
+router.get('/my-gears', auth(Role.PROVIDER), GearController.getMyGears);
 router.get('/:id', GearController.getGearById);
 router.patch('/:id', auth(Role.PROVIDER, Role.ADMIN), uploadMultiple('images', 5), GearController.updateGear);
 router.delete('/:id', auth(Role.PROVIDER, Role.ADMIN), GearController.deleteGear);
