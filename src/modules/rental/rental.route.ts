@@ -23,7 +23,7 @@ router.get(
 
 router.patch(
   "/:id/status",
-  auth(Role.PROVIDER, Role.ADMIN),
+  auth(Role.PROVIDER),
   RentalController.updateRentalStatus,
 );
 

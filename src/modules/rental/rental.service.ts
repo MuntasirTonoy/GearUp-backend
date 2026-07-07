@@ -222,7 +222,9 @@ const updateRentalStatus = async (
 
   // Validate status transitions
   const validTransitions: Record<string, string[]> = {
-    PLACED: ["PICKED_UP", "CANCELLED"],
+    PLACED: ["CONFIRMED", "CANCELLED"],
+    CONFIRMED: ["PICKED_UP", "CANCELLED"],
+    PAID: ["PICKED_UP", "CANCELLED"],
     PICKED_UP: ["RETURNED"],
   };
 

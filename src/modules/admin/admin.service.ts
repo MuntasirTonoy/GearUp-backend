@@ -10,6 +10,7 @@ const getAllUsers = async () => {
       phone: true,
       role: true,
       isDeleted: true,
+      isSuspended: true,
       createdAt: true,
     },
     orderBy: { createdAt: "desc" },
@@ -30,13 +31,13 @@ const toggleUserBlock = async (id: string) => {
 
   const updatedUser = await prisma.user.update({
     where: { id },
-    data: { isDeleted: !user.isDeleted }, // Toggle: block if active, unblock if blocked
+    data: { isSuspended: !user.isSuspended }, // Toggle: block if active, unblock if blocked
     select: {
       id: true,
       name: true,
       email: true,
       role: true,
-      isDeleted: true,
+      isSuspended: true,
     },
   });
 
