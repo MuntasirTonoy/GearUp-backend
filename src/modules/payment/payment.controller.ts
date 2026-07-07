@@ -73,10 +73,29 @@ const getPaymentDetails = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const createPaymentIntent = catchAsync(async (req: Request, res: Response) => {
+  const customerId = req.user?.id as string;
+  const { rentalOrderId, amount } = req.body;
+
+  const result = await PaymentService.createPaymentIntent(
+    customerId,
+    rentalOrderId,
+    amount
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Payment intent created successfully",
+    data: result,
+  });
+});
+
 export const PaymentController = {
   initiatePayment,
   handleSuccessWebhook,
   handleFailWebhook,
   getMyPayments,
   getPaymentDetails,
+  createPaymentIntent,
 };

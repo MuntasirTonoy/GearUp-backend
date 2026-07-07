@@ -18,14 +18,17 @@ const createRental = catchAsync(async (req: Request, res: Response) => {
 
 const getMyRentals = catchAsync(async (req: Request, res: Response) => {
   const customerId = req.user?.id;
-  const result = await RentalService.getMyRentals(customerId);
+  const page = req.query.page ? Number(req.query.page) : undefined;
+  const limit = req.query.limit ? Number(req.query.limit) : undefined;
+  const result = await RentalService.getMyRentals(customerId, page, limit);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Your rentals retrieved successfully",
-    data: result,
-  });
+    data: result.data,
+    meta: result.meta,
+  } as any);
 });
 
 const getRentalById = catchAsync(async (req: Request, res: Response) => {
@@ -45,14 +48,17 @@ const getRentalById = catchAsync(async (req: Request, res: Response) => {
 
 const getProviderRentals = catchAsync(async (req: Request, res: Response) => {
   const providerUserId = req.user?.id;
-  const result = await RentalService.getProviderRentals(providerUserId);
+  const page = req.query.page ? Number(req.query.page) : undefined;
+  const limit = req.query.limit ? Number(req.query.limit) : undefined;
+  const result = await RentalService.getProviderRentals(providerUserId, page, limit);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Provider rentals retrieved successfully",
-    data: result,
-  });
+    data: result.data,
+    meta: result.meta,
+  } as any);
 });
 
 const cancelRental = catchAsync(async (req: Request, res: Response) => {

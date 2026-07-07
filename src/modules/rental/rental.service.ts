@@ -1,6 +1,7 @@
 import { prisma } from "../../lib/prisma";
 import { ICreateRental, IUpdateRentalStatus } from "./rental.interface";
 import httpStatus from "http-status";
+import { getPaginationParams, buildMeta } from "../../utils/paginate";
 
 const createRental = async (customerId: string, payload: ICreateRental) => {
   const gear = await prisma.gear.findUnique({
@@ -53,23 +54,30 @@ const createRental = async (customerId: string, payload: ICreateRental) => {
   return rental;
 };
 
-const getMyRentals = async (customerId: string) => {
-  const rentals = await prisma.rental.findMany({
-    where: { customerId },
-    include: {
-      gear: {
-        select: {
-          name: true,
-          images: true,
-          dailyRentalPrice: true,
-        },
-      },
-      payment: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+const getMyRentals = async (customerId: string, rawPage?: number, rawLimit?: number) => {
+  const { page, limit, skip } = getPaginationParams(rawPage, rawLimit, 10);
 
-  return rentals;
+  const [rentals, total] = await Promise.all([
+    prisma.rental.findMany({
+      where: { customerId },
+      include: {
+        gear: {
+          select: {
+            name: true,
+            images: true,
+            dailyRentalPrice: true,
+          },
+        },
+        payment: true,
+      },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.rental.count({ where: { customerId } }),
+  ]);
+
+  return { data: rentals, meta: buildMeta(page, limit, total) };
 };
 
 const getRentalById = async (
@@ -115,7 +123,7 @@ const getRentalById = async (
   return rental;
 };
 
-const getProviderRentals = async (providerUserId: string) => {
+const getProviderRentals = async (providerUserId: string, rawPage?: number, rawLimit?: number) => {
   const provider = await prisma.provider.findUnique({
     where: { userId: providerUserId },
   });
@@ -126,32 +134,36 @@ const getProviderRentals = async (providerUserId: string) => {
     throw error;
   }
 
-  const rentals = await prisma.rental.findMany({
-    where: {
-      gear: {
-        providerId: provider.id,
-      },
-    },
-    include: {
-      customer: {
-        select: {
-          name: true,
-          email: true,
-          phone: true,
-        },
-      },
-      gear: {
-        select: {
-          name: true,
-          images: true,
-        },
-      },
-      payment: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const whereConditions = { gear: { providerId: provider.id } };
+  const { page, limit, skip } = getPaginationParams(rawPage, rawLimit, 10);
 
-  return rentals;
+  const [rentals, total] = await Promise.all([
+    prisma.rental.findMany({
+      where: whereConditions,
+      include: {
+        customer: {
+          select: {
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+        gear: {
+          select: {
+            name: true,
+            images: true,
+          },
+        },
+        payment: true,
+      },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.rental.count({ where: whereConditions }),
+  ]);
+
+  return { data: rentals, meta: buildMeta(page, limit, total) };
 };
 
 const cancelRental = async (rentalId: string, customerId: string) => {

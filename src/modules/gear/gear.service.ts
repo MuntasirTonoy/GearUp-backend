@@ -2,6 +2,7 @@ import { prisma } from '../../lib/prisma';
 import { ICreateGear, IUpdateGear, IGearFilters } from './gear.interface';
 import { ImageUploadService } from '../imageUpload/imageUpload.service';
 import httpStatus from 'http-status';
+import { getPaginationParams, buildMeta } from '../../utils/paginate';
 
 const createGear = async (userId: string, payload: ICreateGear) => {
   const provider = await prisma.provider.findUnique({
@@ -31,7 +32,7 @@ const createGear = async (userId: string, payload: ICreateGear) => {
 };
 
 const getAllGears = async (filters: IGearFilters) => {
-  const { searchTerm, categoryId, status, minPrice, maxPrice } = filters;
+  const { searchTerm, categoryId, status, minPrice, maxPrice, page: rawPage, limit: rawLimit } = filters;
 
   const andConditions: any[] = [];
 
@@ -61,24 +62,31 @@ const getAllGears = async (filters: IGearFilters) => {
 
   const whereConditions = andConditions.length > 0 ? { AND: andConditions } : {};
 
-  const gears = await prisma.gear.findMany({
-    where: whereConditions,
-    include: {
-      category: true,
-      provider: {
-        select: {
-          id: true,
-          businessName: true,
+  const { page, limit, skip } = getPaginationParams(rawPage, rawLimit, 12);
+
+  const [gears, total] = await Promise.all([
+    prisma.gear.findMany({
+      where: whereConditions,
+      include: {
+        category: true,
+        provider: {
+          select: {
+            id: true,
+            businessName: true,
+          },
         },
       },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.gear.count({ where: whereConditions }),
+  ]);
 
-  return gears;
+  return { data: gears, meta: buildMeta(page, limit, total) };
 };
 
-const getMyGears = async (userId: string) => {
+const getMyGears = async (userId: string, rawPage?: number, rawLimit?: number) => {
   const provider = await prisma.provider.findUnique({
     where: { userId },
   });
@@ -89,21 +97,28 @@ const getMyGears = async (userId: string) => {
     throw error;
   }
 
-  const gears = await prisma.gear.findMany({
-    where: { providerId: provider.id },
-    include: {
-      category: true,
-      provider: {
-        select: {
-          id: true,
-          businessName: true,
+  const { page, limit, skip } = getPaginationParams(rawPage, rawLimit, 10);
+
+  const [gears, total] = await Promise.all([
+    prisma.gear.findMany({
+      where: { providerId: provider.id },
+      include: {
+        category: true,
+        provider: {
+          select: {
+            id: true,
+            businessName: true,
+          },
         },
       },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.gear.count({ where: { providerId: provider.id } }),
+  ]);
 
-  return gears;
+  return { data: gears, meta: buildMeta(page, limit, total) };
 };
 
 const getGearById = async (id: string) => {

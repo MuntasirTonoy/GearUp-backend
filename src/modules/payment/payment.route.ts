@@ -10,6 +10,13 @@ router.post(
   auth(Role.CUSTOMER),
   PaymentController.initiatePayment,
 );
+
+router.post(
+  "/create",
+  auth(Role.CUSTOMER),
+  PaymentController.createPaymentIntent,
+);
+
 router.post("/success", PaymentController.handleSuccessWebhook);
 router.post("/fail", PaymentController.handleFailWebhook);
 

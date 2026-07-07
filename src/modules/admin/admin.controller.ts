@@ -5,13 +5,16 @@ import { AdminService } from "./admin.service";
 import httpStatus from "http-status";
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-  const result = await AdminService.getAllUsers();
+  const page = req.query.page ? Number(req.query.page) : undefined;
+  const limit = req.query.limit ? Number(req.query.limit) : undefined;
+  const result = await AdminService.getAllUsers(page, limit);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Users retrieved successfully",
-    data: result,
-  });
+    data: result.data,
+    meta: result.meta,
+  } as any);
 });
 
 const toggleUserBlock = catchAsync(async (req: Request, res: Response) => {
@@ -48,23 +51,29 @@ const approveProvider = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllGears = catchAsync(async (req: Request, res: Response) => {
-  const result = await AdminService.getAllGears();
+  const page = req.query.page ? Number(req.query.page) : undefined;
+  const limit = req.query.limit ? Number(req.query.limit) : undefined;
+  const result = await AdminService.getAllGears(page, limit);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "All gear listings retrieved successfully",
-    data: result,
-  });
+    data: result.data,
+    meta: result.meta,
+  } as any);
 });
 
 const getAllRentals = catchAsync(async (req: Request, res: Response) => {
-  const result = await AdminService.getAllRentals();
+  const page = req.query.page ? Number(req.query.page) : undefined;
+  const limit = req.query.limit ? Number(req.query.limit) : undefined;
+  const result = await AdminService.getAllRentals(page, limit);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "Rentals retrieved successfully",
-    data: result,
-  });
+    data: result.data,
+    meta: result.meta,
+  } as any);
 });
 
 const getAllPayments = catchAsync(async (req: Request, res: Response) => {

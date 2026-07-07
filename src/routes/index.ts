@@ -9,6 +9,7 @@ import { PaymentRoutes } from '../modules/payment/payment.route';
 import { ReviewRoutes } from '../modules/review/review.route';
 import { AdminRoutes } from '../modules/admin/admin.route';
 import { ImageUploadRoutes } from '../modules/imageUpload/imageUpload.route';
+import { SettingsRoutes } from '../modules/settings/settings.route';
 
 const router = Router();
 
@@ -23,6 +24,7 @@ const moduleRoutes = [
   { path: '/reviews', route: ReviewRoutes },
   { path: '/admin', route: AdminRoutes },
   { path: '/upload', route: ImageUploadRoutes },
+  { path: '/settings', route: SettingsRoutes },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

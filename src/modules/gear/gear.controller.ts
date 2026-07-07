@@ -46,6 +46,8 @@ const getAllGears = catchAsync(async (req: Request, res: Response) => {
     status: req.query.status as string,
     minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
     maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
+    page: req.query.page ? Number(req.query.page) : undefined,
+    limit: req.query.limit ? Number(req.query.limit) : undefined,
   };
 
   const result = await GearService.getAllGears(filters);
@@ -54,8 +56,9 @@ const getAllGears = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Gears retrieved successfully',
-    data: result,
-  });
+    data: result.data,
+    meta: result.meta,
+  } as any);
 });
 
 const getMyGears = catchAsync(async (req: Request, res: Response) => {
@@ -64,14 +67,18 @@ const getMyGears = catchAsync(async (req: Request, res: Response) => {
     throw new Error('User not found');
   }
 
-  const result = await GearService.getMyGears(userId);
+  const page = req.query.page ? Number(req.query.page) : undefined;
+  const limit = req.query.limit ? Number(req.query.limit) : undefined;
+
+  const result = await GearService.getMyGears(userId, page, limit);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'My gears retrieved successfully',
-    data: result,
-  });
+    data: result.data,
+    meta: result.meta,
+  } as any);
 });
 
 const getGearById = catchAsync(async (req: Request, res: Response) => {

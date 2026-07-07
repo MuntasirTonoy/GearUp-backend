@@ -203,9 +203,28 @@ const getPaymentByRentalId = async (
   return payment;
 };
 
+
+const createPaymentIntent = async (
+  customerId: string,
+  rentalOrderId: string,
+  amount: number
+) => {
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: Math.round(amount * 100),
+    currency: "usd",
+    metadata: {
+      rentalOrderId,
+      customerId,
+    },
+  });
+
+  return { clientSecret: paymentIntent.client_secret };
+};
+
 export const PaymentService = {
   initiatePayment,
   handleStripeWebhook,
   getMyPayments,
   getPaymentByRentalId,
+  createPaymentIntent,
 };

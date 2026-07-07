@@ -1,21 +1,41 @@
 import { prisma } from "../../lib/prisma";
 import httpStatus from "http-status";
+import { getPaginationParams, buildMeta } from "../../utils/paginate";
 
-const getAllUsers = async () => {
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      role: true,
-      isDeleted: true,
-      isSuspended: true,
-      createdAt: true,
+const getAllUsers = async (rawPage?: number, rawLimit?: number) => {
+  const { page, limit, skip } = getPaginationParams(rawPage, rawLimit, 10);
+
+  const [users, total, customerCount, providerCount, suspendedCount] = await Promise.all([
+    prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        isDeleted: true,
+        isSuspended: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.user.count(),
+    prisma.user.count({ where: { role: "CUSTOMER" } }),
+    prisma.user.count({ where: { role: "PROVIDER" } }),
+    prisma.user.count({ where: { isSuspended: true } }),
+  ]);
+
+  return {
+    data: users,
+    meta: {
+      ...buildMeta(page, limit, total),
+      customerCount,
+      providerCount,
+      suspendedCount,
     },
-    orderBy: { createdAt: "desc" },
-  });
-  return users;
+  };
 };
 
 const toggleUserBlock = async (id: string) => {
@@ -81,43 +101,60 @@ const approveProvider = async (id: string) => {
   return updatedProvider;
 };
 
-const getAllGears = async () => {
-  const gears = await prisma.gear.findMany({
-    include: {
-      category: { select: { name: true } },
-      provider: { select: { businessName: true } },
-      _count: {
-        select: { rentals: true, reviews: true },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-  return gears;
-};
+const getAllGears = async (rawPage?: number, rawLimit?: number) => {
+  const { page, limit, skip } = getPaginationParams(rawPage, rawLimit, 10);
 
-const getAllRentals = async () => {
-  const rentals = await prisma.rental.findMany({
-    include: {
-      customer: {
-        select: {
-          name: true,
-          email: true,
+  const [gears, total] = await Promise.all([
+    prisma.gear.findMany({
+      include: {
+        category: { select: { name: true } },
+        provider: { select: { businessName: true } },
+        _count: {
+          select: { rentals: true, reviews: true },
         },
       },
-      gear: {
-        select: {
-          name: true,
-          provider: {
-            select: {
-              businessName: true,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.gear.count(),
+  ]);
+
+  return { data: gears, meta: buildMeta(page, limit, total) };
+};
+
+const getAllRentals = async (rawPage?: number, rawLimit?: number) => {
+  const { page, limit, skip } = getPaginationParams(rawPage, rawLimit, 10);
+
+  const [rentals, total] = await Promise.all([
+    prisma.rental.findMany({
+      include: {
+        customer: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        gear: {
+          select: {
+            name: true,
+            images: true,
+            provider: {
+              select: {
+                businessName: true,
+              },
             },
           },
         },
       },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-  return rentals;
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.rental.count(),
+  ]);
+
+  return { data: rentals, meta: buildMeta(page, limit, total) };
 };
 
 const getAllPayments = async () => {
