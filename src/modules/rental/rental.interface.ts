@@ -1,4 +1,4 @@
-import { RentalStatus } from '../../../generated/prisma/client';
+import { RentalStatus } from '@prisma/client';
 
 export interface ICreateRental {
   gearId: string;

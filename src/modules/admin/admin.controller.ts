@@ -20,7 +20,7 @@ const getAllUsers = catchAsync(async (req: Request, res: Response) => {
 const toggleUserBlock = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as { id: string };
   const result = await AdminService.toggleUserBlock(id);
-  const action = result.isDeleted ? "blocked" : "unblocked";
+  const action = result.isSuspended ? "blocked" : "unblocked";
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

@@ -13,7 +13,11 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@prisma/client": ["./generated/prisma/client/index"]
+    }
   },
   "exclude": ["node_modules", "dist"]
 }
