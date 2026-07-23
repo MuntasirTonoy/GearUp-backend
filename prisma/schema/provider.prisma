@@ -5,7 +5,6 @@ model Provider {
   businessName String
   description  String
   address      String
-  approved     Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

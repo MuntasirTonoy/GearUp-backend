@@ -14,12 +14,6 @@ const createGear = async (userId: string, payload: ICreateGear) => {
     error.statusCode = httpStatus.NOT_FOUND;
     throw error;
   }
-  
-  if (!provider.approved) {
-    const error: any = new Error('Your provider profile is not yet approved by an admin.');
-    error.statusCode = httpStatus.FORBIDDEN;
-    throw error;
-  }
 
   const gear = await prisma.gear.create({
     data: {

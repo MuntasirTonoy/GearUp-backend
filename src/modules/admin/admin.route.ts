@@ -11,8 +11,6 @@ router.get("/users", AdminController.getAllUsers);
 
 router.patch("/users/:id/block", AdminController.toggleUserBlock);
 
-router.get("/providers", AdminController.getProviderRequests);
-router.patch("/providers/:id/approve", AdminController.approveProvider);
 
 router.get("/gears", AdminController.getAllGears);
 

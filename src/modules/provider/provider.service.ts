@@ -23,9 +23,8 @@ const createProvider = async (userId: string, payload: ICreateProvider) => {
   return provider;
 };
 
-const getApprovedProviders = async () => {
+const getAllProviders = async () => {
   const providers = await prisma.provider.findMany({
-    where: { approved: true },
     include: {
       user: {
         select: {
@@ -92,7 +91,7 @@ const updateProvider = async (id: string, userId: string, userRole: string, payl
 
 export const ProviderService = {
   createProvider,
-  getApprovedProviders,
+  getAllProviders,
   getProviderById,
   updateProvider,
 };

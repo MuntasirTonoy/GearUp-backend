@@ -1,7 +1,7 @@
-import app from './app';
-import config from './config';
-import { prisma } from './lib/prisma';
-import { Server } from 'http';
+import app from "./app";
+import config from "./config";
+import { prisma } from "./lib/prisma";
+import { Server } from "http";
 
 let server: Server;
 
@@ -9,14 +9,16 @@ async function bootstrap() {
   try {
     // Connect to Prisma
     await prisma.$connect();
-    console.log('✅ Connected to database successfully');
+    console.log("✅ Connected to database successfully");
 
     // Start server
     server = app.listen(config.port, () => {
-      console.log(`🚀 GearUp API server is running on http://localhost:${config.port}`);
+      console.log(
+        `🚀 GearUp API server is running on http://localhost:${config.port}`,
+      );
     });
   } catch (error) {
-    console.error('❌ Failed to connect to database', error);
+    console.error("❌ Failed to connect to database", error);
     process.exit(1);
   }
 }
@@ -24,7 +26,7 @@ async function bootstrap() {
 bootstrap();
 
 // Global Error Handlers for Node.js process
-process.on('unhandledRejection', (error) => {
+process.on("unhandledRejection", (error) => {
   console.log(`😈 unhandledRejection is detected, shutting down...`);
   if (server) {
     server.close(() => {
@@ -37,7 +39,7 @@ process.on('unhandledRejection', (error) => {
   }
 });
 
-process.on('uncaughtException', (error) => {
+process.on("uncaughtException", (error) => {
   console.log(`😈 uncaughtException is detected, shutting down...`);
   console.error(error);
   process.exit(1);

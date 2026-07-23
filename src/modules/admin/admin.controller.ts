@@ -29,27 +29,6 @@ const toggleUserBlock = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getProviderRequests = catchAsync(async (req: Request, res: Response) => {
-  const result = await AdminService.getProviderRequests();
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Provider onboarding requests retrieved successfully",
-    data: result,
-  });
-});
-
-const approveProvider = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params as { id: string };
-  const result = await AdminService.approveProvider(id);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Provider approved successfully",
-    data: result,
-  });
-});
-
 const getAllGears = catchAsync(async (req: Request, res: Response) => {
   const page = req.query.page ? Number(req.query.page) : undefined;
   const limit = req.query.limit ? Number(req.query.limit) : undefined;
@@ -89,8 +68,6 @@ const getAllPayments = catchAsync(async (req: Request, res: Response) => {
 export const AdminController = {
   getAllUsers,
   toggleUserBlock,
-  getProviderRequests,
-  approveProvider,
   getAllGears,
   getAllRentals,
   getAllPayments,

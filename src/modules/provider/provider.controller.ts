@@ -16,13 +16,13 @@ const createProvider = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getApprovedProviders = catchAsync(async (req: Request, res: Response) => {
-  const result = await ProviderService.getApprovedProviders();
+const getAllProviders = catchAsync(async (req: Request, res: Response) => {
+  const result = await ProviderService.getAllProviders();
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Approved providers retrieved successfully',
+    message: 'Providers retrieved successfully',
     data: result,
   });
 });
@@ -56,7 +56,7 @@ const updateProvider = catchAsync(async (req: Request, res: Response) => {
 
 export const ProviderController = {
   createProvider,
-  getApprovedProviders,
+  getAllProviders,
   getProviderById,
   updateProvider,
 };

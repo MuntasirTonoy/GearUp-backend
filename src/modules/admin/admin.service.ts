@@ -64,43 +64,6 @@ const toggleUserBlock = async (id: string) => {
   return updatedUser;
 };
 
-const getProviderRequests = async () => {
-  const providers = await prisma.provider.findMany({
-    where: { approved: false },
-    include: {
-      user: {
-        select: {
-          name: true,
-          email: true,
-          phone: true,
-        },
-      },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return providers;
-};
-
-const approveProvider = async (id: string) => {
-  const provider = await prisma.provider.findUnique({
-    where: { id },
-  });
-
-  if (!provider) {
-    const error: any = new Error("Provider not found");
-    error.statusCode = httpStatus.NOT_FOUND;
-    throw error;
-  }
-
-  const updatedProvider = await prisma.provider.update({
-    where: { id },
-    data: { approved: true },
-  });
-
-  return updatedProvider;
-};
-
 const getAllGears = async (rawPage?: number, rawLimit?: number) => {
   const { page, limit, skip } = getPaginationParams(rawPage, rawLimit, 10);
 
@@ -184,8 +147,6 @@ const getAllPayments = async () => {
 export const AdminService = {
   getAllUsers,
   toggleUserBlock,
-  getProviderRequests,
-  approveProvider,
   getAllGears,
   getAllRentals,
   getAllPayments,
