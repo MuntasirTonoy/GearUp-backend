@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-     "build": "tsc && tsc-alias",
+    "build": "tsc && tsc-alias",
     "start": "tsx src/server.ts"
   },
   "keywords": [],
